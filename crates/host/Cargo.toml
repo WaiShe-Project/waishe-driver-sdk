@@ -1,0 +1,15 @@
+[package]
+name = "waishe-driver-host"
+description = "Run WaiShe drivers: sandboxed WebAssembly instances with resource limits and injected HID access."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+waishe-driver-types.workspace = true
+wasmi.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+tracing = "0.1.44"

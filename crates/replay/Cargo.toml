@@ -1,0 +1,12 @@
+[package]
+name = "waishe-driver-replay"
+description = "Test WaiShe drivers offline against recorded HID exchanges."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+waishe-driver-types.workspace = true
+waishe-driver-host.workspace = true
