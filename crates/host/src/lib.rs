@@ -338,6 +338,11 @@ impl<B: HidBackend> DriverInstance<B> {
         &mut self.store.data_mut().backend
     }
 
+    /// Ends the instance and returns its backend, for example to instantiate again after a trap.
+    pub fn into_backend(self) -> B {
+        self.store.into_data().backend
+    }
+
     /// True after a trap; the caller should drop the instance and create a new one.
     pub fn is_poisoned(&self) -> bool {
         self.poisoned

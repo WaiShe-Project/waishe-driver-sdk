@@ -13,3 +13,4 @@ waishe-driver-host.workspace = true
 hidapi = { version = "2.6.7", default-features = false, features = ["windows-native"] }
 toml = "1.2.1"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+zip = { version = "9.5.1", default-features = false, features = ["deflate"] }

@@ -5,6 +5,7 @@
 //! waishe-driver-dev <driver-dir> <wasm> read [capability...]
 //! waishe-driver-dev <driver-dir> <wasm> write <capability> <value>
 //! waishe-driver-dev <driver-dir> <wasm> listen <seconds>
+//! waishe-driver-dev <driver-dir> <wasm> pack <out.wsdrv>
 //! ```
 //!
 //! `<driver-dir>` holds `driver.toml`. Values: `1600` or `1600x800` for DPI, `true`/`false`,
@@ -54,12 +55,37 @@ fn fail(msg: impl std::fmt::Display) -> ! {
     std::process::exit(1)
 }
 
+/// Writes a `.wsdrv` package: `driver.toml`, `devices.toml`, `LICENSE`, `PROVENANCE.md` from the
+/// driver directory, and the given wasm as `driver.wasm`.
+fn pack(dir: &std::path::Path, wasm: &std::path::Path, out: &std::path::Path) {
+    use std::io::Write;
+    let manifest: DriverManifest = toml::from_str(&std::fs::read_to_string(dir.join("driver.toml")).unwrap_or_else(|e| fail(e)))
+        .unwrap_or_else(|e| fail(format!("driver.toml: {e}")));
+    let file = std::fs::File::create(out).unwrap_or_else(|e| fail(format!("{}: {e}", out.display())));
+    let mut zip = zip::ZipWriter::new(file);
+    let opts = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+    let mut add = |name: &str, bytes: Vec<u8>| {
+        zip.start_file(name, opts).unwrap_or_else(|e| fail(e));
+        zip.write_all(&bytes).unwrap_or_else(|e| fail(e));
+    };
+    for name in ["driver.toml", "devices.toml", "LICENSE", "PROVENANCE.md"] {
+        add(name, std::fs::read(dir.join(name)).unwrap_or_else(|e| fail(format!("{name}: {e}"))));
+    }
+    add("driver.wasm", std::fs::read(wasm).unwrap_or_else(|e| fail(format!("{}: {e}", wasm.display()))));
+    zip.finish().unwrap_or_else(|e| fail(e));
+    println!("{} {} -> {}", manifest.driver.id, manifest.driver.version, out.display());
+}
+
 fn main() {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .with_writer(std::io::stderr)
         .init();
     let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.len() == 4 && args[2] == "pack" {
+        pack(std::path::Path::new(&args[0]), std::path::Path::new(&args[1]), std::path::Path::new(&args[3]));
+        return;
+    }
     if args.len() < 3 {
         fail(
             "usage: waishe-driver-dev <driver-dir> <wasm> probe | read [cap...] | write <cap> <value> | listen <seconds>",
