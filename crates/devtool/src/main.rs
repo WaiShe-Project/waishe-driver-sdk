@@ -219,17 +219,18 @@ fn main() {
             let end = Instant::now() + Duration::from_secs(secs);
             let mut buf = [0u8; 64];
             println!("  listening {secs} s on {:?}", probe.listen);
+            let started = Instant::now();
             while Instant::now() < end {
                 for &h in &probe.listen {
                     let n = d.backend_mut().read(h, &mut buf, 200).unwrap_or(0);
                     if n > 0 {
+                        let ms = started.elapsed().as_millis();
+                        // Raw bytes up to the last non-zero one, so protocol work sees what arrived.
+                        let used = buf[..n].iter().rposition(|&b| b != 0).map_or(1, |i| i + 1);
+                        let hex: Vec<String> = buf[..used].iter().map(|b| format!("{b:02x}")).collect();
+                        println!("  +{ms:>6} ms  raw {}", hex.join(" "));
                         for e in d.on_input(h, &buf[..n]).unwrap_or_else(|e| fail(e)) {
-                            println!(
-                                "  +{:>6} ms  {} = {:?}",
-                                (secs * 1000) as i64 - (end - Instant::now()).as_millis() as i64,
-                                e.capability,
-                                e.reading
-                            );
+                            println!("  +{ms:>6} ms  {} = {:?}", e.capability, e.reading);
                         }
                     }
                 }
