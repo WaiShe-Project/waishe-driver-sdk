@@ -1,0 +1,9 @@
+[[device]]
+model = "faulty"
+name = "Faulty test device"
+brand = "Test"
+kind = "mouse"
+
+  [[device.endpoint]]
+  transport = "receiver"
+  product_id = 0x00B7

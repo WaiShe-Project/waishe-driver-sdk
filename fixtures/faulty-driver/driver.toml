@@ -1,0 +1,15 @@
+[driver]
+id = "faulty-test"
+name = "Faulty test driver"
+version = "9.9.9"
+api = "0.1"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/WaiShe-Project/waishe-driver-sdk"
+description = "Fault-isolation test fixture. Claims the DeathAdder V3 Pro receiver and hangs on every read."
+
+[[match]]
+vendor_id = 0x1532
+product_ids = [0x00B7]
+interface_number = 0
+usage_page = 0x0001
+usage = 0x0002

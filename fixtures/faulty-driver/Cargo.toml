@@ -1,0 +1,21 @@
+[package]
+name = "faulty-driver"
+version = "9.9.9"
+edition = "2024"
+publish = false
+description = "Test fixture: a driver that never returns from read. For fault-isolation tests only."
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+waishe-driver = { path = "../../crates/driver" }
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+strip = true
