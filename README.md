@@ -2,7 +2,19 @@
 
 WaiShe 驱动的接口规范、能力模型，以及驱动开发与测试工具。
 
-**当前阶段：规范草案。尚无可用的库和工具。** 驱动形态已定：WebAssembly 核心模块，由 Bridge 内嵌的 wasmi 运行（`waishe` 仓库决策记录 0003）。M0 中用两个原型驱动在真实设备上验证了这一形态。
+**当前阶段：ABI 0.1 已实现，供 M1 使用；1.0 冻结前仍可能有不兼容变更。** 驱动是 WebAssembly 核心模块，由 Bridge 内嵌的 wasmi 运行（`waishe` 仓库决策记录 0003）。
+
+## 组成
+
+| crate | 用途 | 使用者 |
+| --- | --- | --- |
+| `waishe-driver-types` | ABI 常量、能力模型、清单与设备表类型 | 驱动与宿主 |
+| `waishe-driver` | `Driver` trait、HID 访问、`export_driver!` 宏 | 驱动作者 |
+| `waishe-driver-host` | 在 wasmi 沙箱中运行驱动，限额与 HID 注入 | Bridge |
+| `waishe-driver-replay` | 用脚本化的 HID 交互离线测试驱动 | 驱动作者 |
+| `waishe-driver-dev` | 不经 Bridge，在真实设备上运行驱动 | 驱动作者 |
+
+驱动仓库以 Git 依赖引用本仓库。在本地联调时，可在所有仓库的共同父目录放一个 `.cargo/config.toml`，用 `[patch."https://github.com/WaiShe-Project/waishe-driver-sdk"]` 指向本地检出。
 
 ## 这个仓库定义什么
 
@@ -22,19 +34,16 @@ flowchart LR
 
 | 文档 | 内容 | 状态 |
 | --- | --- | --- |
-| [驱动接口](docs/driver-interface.md) | 驱动包结构、清单、匹配规则、宿主与驱动之间的调用、生命周期、错误模型、驱动须遵守的规则 | 草案 0.1 |
-| [能力模型](docs/capabilities.md) | 标准能力目录、值类型、约束、读数状态、写入结果、如何新增能力 | 草案 0.1 |
+| [驱动接口](docs/driver-interface.md) | 编写驱动、驱动包、清单、ABI、输入报告、限额、规则、测试工具 | ABI 0.1，已实现 |
+| [能力模型](docs/capabilities.md) | 标准能力目录、值类型、约束、读数状态、写入结果、如何新增能力 | 0.1，已实现 |
 
 ## 计划内容
 
 | 内容 | 里程碑 |
 | --- | --- |
-| 接口定义文件与版本化规则 | M1 |
-| 驱动侧库：接口绑定、常用的报文与校验工具 | M1 |
-| 回放测试工具：用录制的报文序列离线测试驱动 | M1 |
-| 驱动模板与最小示例 | M1 |
-| 打包工具：生成驱动包并校验清单 | M2 |
-| 接口 1.0 冻结 | M3 |
+| 驱动包打包工具：生成 `.wsdrv` 并校验清单 | M1（Bridge 旁加载需要） |
+| 驱动模板 | M2 |
+| ABI 1.0 冻结 | M3 |
 
 ## 版本
 

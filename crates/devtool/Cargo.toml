@@ -1,0 +1,15 @@
+[package]
+name = "waishe-driver-dev"
+description = "Run a WaiShe driver against a real device without the Bridge."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+waishe-driver-types.workspace = true
+waishe-driver-host.workspace = true
+hidapi = { version = "2.6.7", default-features = false, features = ["windows-native"] }
+toml = "1.2.1"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
